@@ -2,7 +2,7 @@ package model;
 
 public class Person {
     private final int id;
-    private final String name;
+    private String name;
 
     public Person(int id, String name) {
         this.id = id;
@@ -15,6 +15,10 @@ public class Person {
 
     public String getName() {
         return this.name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Override

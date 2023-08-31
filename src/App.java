@@ -9,7 +9,7 @@ public class App {
         HashTable<Person> hashTable = new HashTable<>();
 
         for (int id : getRandomIds(30)) {
-            hashTable.put(new Person(id, "Person " + id));
+            hashTable.add(new Person(id, "Person " + id));
         }
 
         Person search = hashTable.get(new Person(27, "Person 27")).orElseThrow();
