@@ -6,6 +6,7 @@ public class HashTable<T> {
     private final HashEntry<T>[] array;
     private final int maxSize;
     private final int maxCollisions;
+    private final int prime;
 
     private int size = 0;
 
@@ -13,6 +14,7 @@ public class HashTable<T> {
     public HashTable() {
         this.maxSize = 151;
         this.maxCollisions = 10;
+        this.prime = 31;
 
         this.array = new HashEntry[maxSize];
 
@@ -21,28 +23,16 @@ public class HashTable<T> {
         }
     }
 
-    @SuppressWarnings("unchecked")
-    public HashTable(int size) {
-        this.maxSize = size;
-        this.maxCollisions = 10;
-
-        this.array = new HashEntry[size];
-
-        for (int i = 0; i < size; i++) {
-            this.array[i] = null;
-        }
+    private int hash1(int value) {
+        return value % maxSize;
     }
 
-    @SuppressWarnings("unchecked")
-    public HashTable(int size, int maxCollisions) {
-        this.maxSize = size;
-        this.maxCollisions = maxCollisions;
+    private int hash2(int value) {
+        return prime - (value % prime);
+    }
 
-        this.array = new HashEntry[size];
-
-        for (int i = 0; i < size; i++) {
-            this.array[i] = null;
-        }
+    public int getSize() {
+        return size;
     }
 
     public void add(T value) {
@@ -51,7 +41,8 @@ public class HashTable<T> {
         }
 
         int key = value.hashCode();
-        int hash = key % maxSize;
+        int hash = hash1(key);
+        int jump = hash2(key);
         int collisions = 0;
         int chosenLocation = -1;
 
@@ -70,7 +61,7 @@ public class HashTable<T> {
 
             // keep searching until we find that the key is already in the array or we reach
             // the max number of collisions
-            hash = (hash + 1) % maxSize;
+            hash = (hash + jump) % maxSize;
             collisions++;
         }
 
@@ -88,7 +79,8 @@ public class HashTable<T> {
 
     public Optional<T> get(T value) {
         int key = value.hashCode();
-        int hash = key % maxSize;
+        int hash = hash1(key);
+        int jump = hash2(key);
         int collisions = 0;
 
         while (collisions < maxCollisions) {
@@ -101,7 +93,7 @@ public class HashTable<T> {
 
             // if the key doesn't exist or the value's key is different from the searched
             // key, keep searching
-            hash = (hash + 1) % maxSize;
+            hash = (hash + jump) % maxSize;
             collisions++;
         }
 
@@ -109,15 +101,22 @@ public class HashTable<T> {
         return Optional.empty();
     }
 
-    public int getMaxCollisions() {
-        return maxCollisions;
-    }
+    public void remove(T value) {
+        int key = value.hashCode();
+        int hash = hash1(key);
+        int jump = hash2(key);
+        int collisions = 0;
 
-    public int getSize() {
-        return size;
-    }
+        while (collisions < maxCollisions) {
+            if (array[hash] != null && array[hash].getKey() == key) {
+                array[hash] = null;
+                return;
+            }
 
-    public int getMaxSize() {
-        return maxSize;
+            hash = (hash + jump) % maxSize;
+            collisions++;
+        }
+
+        throw new RuntimeException("Value is not in hash table");
     }
 }
